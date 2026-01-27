@@ -48,6 +48,9 @@ class Shell(Cmd):
         # if a command returns True, the cmdloop() will stop.
         # this acts like disconnecting from the shell.
         return True
+    
+    def default(self, line):
+        self.printline(f"Unbekannter Befehl: '{line}'")
 
     # If an empty line is given as input, we just print out a newline.
     # This fixes a display issue when spamming enter.

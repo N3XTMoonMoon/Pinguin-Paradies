@@ -1,4 +1,6 @@
 import paramiko
+import ctypes
+import locale
 
 class SshServerInterface(paramiko.ServerInterface):
 
@@ -37,5 +39,8 @@ class SshServerInterface(paramiko.ServerInterface):
     # before authentication has happened. This is different
     # than the shell's intro property, which is displayed 
     # after the authentication.
+    # addition will grant user locale for charset
     def get_banner(self):
-        return ('My SSH Server\r\n', 'en-US')
+        windll = ctypes.windll.kernel32
+        sys_language=locale.windows_locale[ windll.GetUserDefaultUILanguage() ]
+        return ('Herzlich Willkommen im Pinguin Paradis Management CMD Outlet\r\n', sys_language)

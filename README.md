@@ -57,3 +57,7 @@ Dadurch soll der direkte Datenbankzugriff vermieden werden und alles über die E
     COLORAMA für Farbe
     ART.ASCII (text2art) für CLI Art von Texten
 
+# Start
+start des Servers über python main.py
+Anmelden mit cmd > ssh <USER>@<Serveradress>
+ssh admin@localhost

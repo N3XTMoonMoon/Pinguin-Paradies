@@ -38,6 +38,8 @@ class SshServer(ServerBase):
             # cmdloop() will block execution of this thread.
             self.client_shell = Shell(stdio, stdio)
             self.client_shell.cmdloop()
+            
+            logger.info('Connection closed')
 
             # After execution continues, we can close the session
             # since the only way execution will continue from

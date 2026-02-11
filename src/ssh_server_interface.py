@@ -1,6 +1,9 @@
 import paramiko
 import ctypes
 import locale
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SshServerInterface(paramiko.ServerInterface):
 
@@ -33,6 +36,7 @@ class SshServerInterface(paramiko.ServerInterface):
     #
     # TODO: add user management
     def check_auth_password(self, username, password):
+        logger.info(f'Neuer Login von: {username}')
         if (username == 'admin') and (password == 'admin'):
             return paramiko.AUTH_SUCCESSFUL
         return paramiko.AUTH_FAILED

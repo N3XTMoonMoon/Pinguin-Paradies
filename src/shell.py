@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 class Shell(Cmd):
 
     # should display
-    intro='Custom SSH Shell'
+    intro='Custom SSH Shell\r\n'
 
     # Instead of using input(), this will use stdout.write() and stdin.readline(),
     # this means we can use any TextIO instead of just sys.stdin and sys.stdout.

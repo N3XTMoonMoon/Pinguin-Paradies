@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from sys import platform
 import socket, threading
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ServerBase(ABC):
 
@@ -56,6 +59,7 @@ class ServerBase(ABC):
             try:
                 self._socket.listen()
                 client, addr = self._socket.accept()
+                logger.info(f'Neue Verbindung von: {addr[0]}:{addr[1]}')
                 self.connection_function(client)
             except socket.timeout:
                 pass

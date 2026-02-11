@@ -25,6 +25,7 @@ class Shell(Cmd):
 
     # These are custom print() functions that will let us utilize the given stdout.
     def print(self, value):
+        logger.info(value)
         # make sure the stdout is set.
         # we could add an else which uses the default print(), but I will not
         if self.stdout and not self.stdout.closed:

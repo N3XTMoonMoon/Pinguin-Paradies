@@ -1,8 +1,11 @@
 import paramiko
+import logging
 
 from src.server_base import ServerBase
 from src.ssh_server_interface import SshServerInterface
 from src.shell import Shell
+
+logger = logging.getLogger(__name__)
 
 class SshServer(ServerBase):
 
@@ -13,6 +16,7 @@ class SshServer(ServerBase):
 
     def connection_function(self, client):
         try:
+            logger.info('New client connected')
             # create the SSH transport object
             session = paramiko.Transport(client)
             session.add_server_key(self._host_key)

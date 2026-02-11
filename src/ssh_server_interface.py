@@ -30,6 +30,8 @@ class SshServerInterface(paramiko.ServerInterface):
     #
     # For posterity, you could setup a database that encrypts
     # passwords and will grab them to decrypt here.
+    #
+    # TODO: add user management
     def check_auth_password(self, username, password):
         if (username == 'admin') and (password == 'admin'):
             return paramiko.AUTH_SUCCESSFUL

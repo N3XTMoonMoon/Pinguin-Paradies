@@ -1,8 +1,11 @@
 from cmd import Cmd
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Shell(Cmd):
 
-    # Message to be output when cmdloop() is called.
+    # should display
     intro='Custom SSH Shell'
 
     # Instead of using input(), this will use stdout.write() and stdin.readline(),
@@ -12,7 +15,7 @@ class Shell(Cmd):
     # The prompt property can be overridden, allowing us to use a custom 
     # string to be displayed at the beginning of each line. This will not
     # be included in any input that we get.
-    prompt='My Shell> '
+    prompt='P-Paradise> '
 
     # Constructor that will allow us to set out own stdin and stdout.
     # If stdin or stdout is None, sys.stdin or sys.stdout will be used
@@ -27,6 +30,8 @@ class Shell(Cmd):
         if self.stdout and not self.stdout.closed:
             self.stdout.write(value)
             self.stdout.flush()
+        else:
+            logger.info(value)
 
     def printline(self, value):
         self.print(value + '\r\n')
@@ -42,7 +47,7 @@ class Shell(Cmd):
             self.printline('Hello there!')
 
     # even if you don't use the arg parameter, it must be included.
-    def do_bye(self, arg):
+    def do_logout(self, arg):
         self.printline('See you later!')
 
         # if a command returns True, the cmdloop() will stop.
@@ -56,3 +61,6 @@ class Shell(Cmd):
     # This fixes a display issue when spamming enter.
     def emptyline(self):
         self.print('\r\n')
+    
+    async def doSth():
+        logger.info('Hallo')

@@ -1,6 +1,15 @@
 import os, time
 from src.ssh_server import SshServer
 
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
 
 if __name__ == '__main__':
     #generation over cmd: "ssh-keygen -t rsa"
@@ -10,7 +19,8 @@ if __name__ == '__main__':
     # leave it empty to run on 127.0.0.1:22
     #server.start("0.0.0.0", int(os.getenv("SSH_PORT", 22)))
     try:
-        print("SSH Server startet – Strg+C zum Beenden")
+        #print("SSH Server startet – Strg+C zum Beenden")
+        logger.info("SSH Server startet – Strg+C zum Beenden")
         server.start("0.0.0.0", int(os.getenv("SSH_PORT", 22)))
         
         # Falls start() nicht blockiert:
@@ -18,9 +28,10 @@ if __name__ == '__main__':
             time.sleep(1)
 
     except KeyboardInterrupt:
+        logger.warning("KeyboardInterrupt empfangen – Server wird beendet...")
         server.stop()
-        print("\nKeyboardInterrupt empfangen – Server wird beendet...")
+        #print("\nKeyboardInterrupt empfangen – Server wird beendet...")
 
     finally:
         server.stop()   # oder server.close(), je nach Implementierung
-        print("Server sauber gestoppt.")
+        logger.info("Server gestoppt.")

@@ -34,7 +34,7 @@ Ein Restaurantverwaltungs tool, welches über eine Console genutzt wird
     5. -> Kundenpräferenz erlernen
     Verwaltung mit Kundenkarten (ID, name, ....)
     6. -> Tischverwaltung für Restaurant
-    ZUSÄTZLICH! Möglichkeit wie bei megges
+    ZUSÄTZLICH! Möglichkeit wie bei mcDonalds
 
 Zur Umsetzung wird Python als cmd Anwendung verwendet.
 Das Backend besteht dabei aus einer Datenbank und einem SSH Server.
@@ -68,8 +68,17 @@ ssh admin@localhost
 
 # Usage:
 anmelden über Verbidnung
-bestellung
+## Bestellung
+Start über Befehl "Bestellen"
 Eingabe und Abfrage von der CLI was bestellt werden soll (über zahleneingabe oder Text: Burger(1) -> 1 oder Burger)
-Wie viel und welche extras
-Menüs sollen auch möglich sein
+- Eingabe der Kundennummer (Optional)
+- Eingabe des Artikels über nummer oder name
+- Menüs sollen auch möglich sein
+- Wie viel und welche extras
+- Wiederholen, solange der Kunde noch was bestellen will
+- Bestellung in DB Speichern
 
+## Artikel in lager hinzufügen
+Start über Befehl "Einlagern"
+- Artikelnummer und Menge eingeben
+- Speichern in Datenbank

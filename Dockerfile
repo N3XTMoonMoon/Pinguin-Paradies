@@ -7,7 +7,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
 WORKDIR /app
 
 # create ssh keys
-RUN ssh-keygen -t rsa -b 2048 -f /app/id_rsa -N ''
+RUN ssh-keygen -t ed25519 -f id_ed25519
 
 # install requirements
 COPY ./requirements.txt ./requirements.txt

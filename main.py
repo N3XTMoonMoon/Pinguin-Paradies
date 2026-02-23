@@ -6,7 +6,7 @@ from twisted.cred import portal, checkers
 from twisted.internet import reactor
 from zope.interface import implementer
  
-class SSHDemoProtocol(recvline.HistoricRecvLine):
+class SSHPinguinProtocol(recvline.HistoricRecvLine):
     def __init__(self, user):
        self.user = user
  
@@ -61,7 +61,7 @@ class SSHDemoProtocol(recvline.HistoricRecvLine):
         self.terminal.nextLine()
  
     def do_quit(self):
-        self.terminal.write("Thanks for playing!")
+        self.terminal.write("Now: Logging out!")
         self.terminal.nextLine()
         self.terminal.loseConnection()
  
@@ -71,9 +71,14 @@ class SSHDemoProtocol(recvline.HistoricRecvLine):
     def do_test(self):
         self.terminal.write('Test')
         self.terminal.nextLine()
+        
+    def do_bestellen(self):
+        self.terminal.write('Was soll bestellt werden?')
+        self.terminal.write('Zur Verfügung stehen: BURGER, FISCHSTÄBCHEN, ...')
+        
  
 @implementer(ISession)
-class SSHDemoAvatar(avatar.ConchUser):
+class SSHPinguinAvatar(avatar.ConchUser):
  
  
     def __init__(self, username):
@@ -83,7 +88,7 @@ class SSHDemoAvatar(avatar.ConchUser):
  
  
     def openShell(self, protocol):
-        serverProtocol = insults.ServerProtocol(SSHDemoProtocol, self)
+        serverProtocol = insults.ServerProtocol(SSHPinguinProtocol, self)
         serverProtocol.makeConnection(protocol)
         protocol.makeConnection(session.wrapProtocol(serverProtocol))
  
@@ -99,32 +104,33 @@ class SSHDemoAvatar(avatar.ConchUser):
         pass
  
 @implementer(portal.IRealm)
-class SSHDemoRealm(object):
+class SSHPinguinRealm(object):
      
     def requestAvatar(self, avatarId, mind, *interfaces):
         if IConchUser in interfaces:
-            return interfaces[0], SSHDemoAvatar(avatarId), lambda: None
+            return interfaces[0], SSHPinguinAvatar(avatarId), lambda: None
         else:
             raise NotImplementedError("No supported interfaces found.")
 def getRSAKeys():
-    privateKey = keys.Key.fromFile("id_rsa")
+    privateKey = keys.Key.fromFile("id_ed25519")
     publicKey = privateKey.public()
 
     sshFactory.privateKeys = {
-        b"ssh-rsa": privateKey
+        b"ssh-ed25519": privateKey
     }
 
     sshFactory.publicKeys = {
-        b"ssh-rsa": publicKey
+        b"ssh-ed25519": publicKey
     }
     return sshFactory
  
 if __name__ == "__main__":
     sshFactory = factory.SSHFactory()
-    sshFactory.portal = portal.Portal(SSHDemoRealm())
+    sshFactory.portal = portal.Portal(SSHPinguinRealm())
  
 
 sshFactory = getRSAKeys()
+# TODO: move to DB
 users = {'admin': b'admin', 'guest': b'bbb'}
 sshFactory.portal.registerChecker(
     checkers.InMemoryUsernamePasswordDatabaseDontUse(**users))

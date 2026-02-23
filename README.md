@@ -12,7 +12,7 @@ Ein Restaurantverwaltungs tool, welches über eine Console genutzt wird
     Abhängig vom Systemdatum, dass Miete usw. immer zum 1. abgezpgen wird
 - Rezepte vorschlagen
 - Kundenpräferenzen zu erlernen
-    Kundenkarte mit ID und soweiter
+    Kundenkarte mit ID und so weiter
     Kunde hat Liste mit bestellten Gerichten. bei Bestellung Nummer erhöhen.
     -> Höchste Nummer die zuletzt gekauft wurde vorschlagen
 - Tischverwaltung für Restaurant (Bestellung, status, bezahlt, ...)
@@ -56,8 +56,20 @@ Dadurch soll der direkte Datenbankzugriff vermieden werden und alles über die E
 # Mögliche Packages:
     COLORAMA für Farbe
     ART.ASCII (text2art) für CLI Art von Texten
+    Basis ist dieses Projeckt: https://gist.github.com/michaellihs/d2070d7a6d3bb65be18c
+    mit dem Twisted paket als Grundlage
 
 # Start
-start des Servers über python main.py
+start des Servers über python main.py oder
+docker build -t pinguin-paradis:latest . && docker run -it -p 22:22 pinguin-paradis:latest
+Docker-compose ist aktuell noch nicht implementiert
 Anmelden mit cmd > ssh <USER>@<Serveradress>
 ssh admin@localhost
+
+# Usage:
+anmelden
+bestellung
+Eingabe und Abfrage von der CLI was bestellt werden soll (über zahleneingabe oder Text: Burger(1) -> 1 oder Burger)
+Wie viel und welche extras
+Menüs sollen auch möglich sein
+

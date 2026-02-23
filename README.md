@@ -67,7 +67,7 @@ Anmelden mit cmd > ssh <USER>@<Serveradress>
 ssh admin@localhost
 
 # Usage:
-anmelden
+anmelden über Verbidnung
 bestellung
 Eingabe und Abfrage von der CLI was bestellt werden soll (über zahleneingabe oder Text: Burger(1) -> 1 oder Burger)
 Wie viel und welche extras

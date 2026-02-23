@@ -12,7 +12,7 @@ class SSHPinguinProtocol(recvline.HistoricRecvLine):
  
     def connectionMade(self):
         recvline.HistoricRecvLine.connectionMade(self)
-        self.terminal.write("Welcome to my test SSH server.")
+        self.terminal.write("Willkommen in der CLI des Pinguin-Paradis.")
         self.terminal.nextLine()
         self.do_help()
         self.showPrompt()
@@ -27,7 +27,7 @@ class SSHPinguinProtocol(recvline.HistoricRecvLine):
         line = line.strip()
         if line:
             print(line)
-            f = open('logfile.log', 'w')
+            f = open('./log/Pinguin-Paradis.log', 'w')
             f.write(line.decode("utf-8"))
             f.close
             cmdAndArgs = line.split()
@@ -88,6 +88,9 @@ class SSHPinguinAvatar(avatar.ConchUser):
  
  
     def openShell(self, protocol):
+        print('Username')
+        print(self.username == b'admin')
+        print('Username')
         serverProtocol = insults.ServerProtocol(SSHPinguinProtocol, self)
         serverProtocol.makeConnection(protocol)
         protocol.makeConnection(session.wrapProtocol(serverProtocol))

@@ -1,11 +1,8 @@
 import paramiko
-import logging
 
 from src.server_base import ServerBase
 from src.ssh_server_interface import SshServerInterface
 from src.shell import Shell
-
-logger = logging.getLogger(__name__)
 
 class SshServer(ServerBase):
 
@@ -16,66 +13,32 @@ class SshServer(ServerBase):
 
     def connection_function(self, client):
         try:
-            logger.info("New client connected")
+            # create the SSH transport object
+            session = paramiko.Transport(client)
+            session.add_server_key(self._host_key)
 
-            transport = paramiko.Transport(client)
-            transport.add_server_key(self._host_key)
-
+            # create the server
             server = SshServerInterface()
-            transport.start_server(server=server)
 
-            channel = transport.accept(20)
-            if channel is None:
-                logger.warning("No channel")
+            # start the SSH server
+            try:
+                session.start_server(server=server)
+            except paramiko.SSHException:
                 return
 
-            logger.info("Channel opened")
+            # create the channel and get the stdio
+            channel = session.accept()
+            stdio = channel.makefile('rwU')
 
-            channel.send(b"\r\nCustom SSH Shell\r\n")
-            channel.send(b"P-Paradise> ")
+            # create the client shell and start it
+            # cmdloop() will block execution of this thread.
+            self.client_shell = Shell(stdio, stdio)
+            self.client_shell.cmdloop()
 
-            bufferedCommand = ''
-
-            while True:
-                data = channel.recv(1024)
-                if not data:
-                    break
-
-                command = data.decode("utf-8")
-                
-                if command in ("\r"):
-                    logger.info('COMMAND \\r ENTER')
-
-                #turn on for logging of every keyinput
-                logger.debug(f"Received command: {command}")
-                if(command == "\r"):
-                    
-                
-                    channel.send("\r\n")
-                    #overwrite comand for validation
-                    command = bufferedCommand
-                    #reset buffer
-                    bufferedCommand = ''
-                    if command == "logout":
-                        channel.send(b"See you later!\r\n")
-                        break
-                    elif command.startswith("greet"):
-                        parts = command.split()
-                        if len(parts) > 1:
-                            channel.send(f"Hey {parts[1]}!\r\n".encode())
-                        else:
-                            channel.send(b"Hello there!\r\n")
-                    else:
-                        channel.send(f"Unbekannter Befehl: '{command}'\r\n".encode())
-
-                    channel.send(b"P-Paradise> ")
-                else:
-                    bufferedCommand += command
-                    channel.send(command)
-
-            channel.close()
-            transport.close()
-            logger.info("Connection closed")
-
-        except Exception:
-            logger.exception("SSH Error")
+            # After execution continues, we can close the session
+            # since the only way execution will continue from
+            # cmdloop() is if we explicitly return True from it,
+            # which we do with the bye command.
+            session.close()
+        except:
+            pass

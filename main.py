@@ -25,6 +25,7 @@ if __name__ == '__main__':
     try:
         #print("SSH Server startet – Strg+C zum Beenden")
         logger.info("SSH Server startet – Strg+C zum Beenden")
+        
         server.start("0.0.0.0", int(os.getenv("SSH_PORT", 22)))
         
         # Falls start() nicht blockiert:

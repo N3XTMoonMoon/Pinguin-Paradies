@@ -2,6 +2,7 @@ import paramiko
 import ctypes
 import locale
 import logging
+import platform
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,22 @@ class SshServerInterface(paramiko.ServerInterface):
     # after the authentication.
     # addition will grant user locale for charset
     def get_banner(self):
-        windll = ctypes.windll.kernel32
-        sys_language=locale.windows_locale[ windll.GetUserDefaultUILanguage() ]
-        return ('Herzlich Willkommen im Pinguin Paradis Management CMD Outlet\r\n', sys_language)
+        banner_text = "Herzlich Willkommen im Pinguin Paradis Management CMD Outlet\r\n"
+
+        try:
+            # Windows-spezifische Sprachermittlung
+            if platform.system() == "Windows":
+                windll = ctypes.windll.kernel32
+                lang_id = windll.GetUserDefaultUILanguage()
+                sys_language = locale.windows_locale.get(lang_id, "unknown")
+            else:
+                # Linux / Docker / macOS
+                sys_language = locale.getdefaultlocale()[0]
+
+            if not sys_language:
+                sys_language = "unknown"
+
+        except Exception:
+            sys_language = "unknown"
+
+        return banner_text, sys_language

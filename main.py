@@ -8,11 +8,23 @@ from twisted.internet import reactor
 from zope.interface import implementer
 import datetime
 
-from db import init_db, get_all_available_stock, get_price_and_stock_by_item_id
-
+from db import (
+    init_db,
+    fill_with_test_data,
+    get_all_available_stock,
+    get_price_and_stock_by_item_id,
+    reduce_stock,
+    increase_stock,
+    create_order,
+    add_order_item,
+    get_total_revenue,
+    get_full_inventory
+)
 # Datenbankerstellung
 
 init_db()
+
+fill_with_test_data()
 
 #############################
 # SSH PROTOKOLL
@@ -138,40 +150,28 @@ class SSHPinguinProtocol(recvline.HistoricRecvLine):
             return
 
         quantity = int(line)
-
         item = get_price_and_stock_by_item_id(self.selected_item)
 
         if not item:
             self.terminal.write("Artikel existiert nicht!")
-            self.terminal.nextLine()
         elif item[1] < quantity:
             self.terminal.write("Nicht genügend Lagerbestand!")
-            self.terminal.nextLine()
         else:
-            self.current_order.append((self.selected_item, quantity, item[0]))
-            c.execute("UPDATE inventory SET stock = stock - ? WHERE id=?", (quantity, self.selected_item))
-            conn.commit()
-            self.terminal.write("Artikel hinzugefügt!")
-            self.terminal.nextLine()
+            self.current_order.append((self.selected_item, quantity, float(item[0])))
+            reduce_stock(self.selected_item, quantity)
 
-        conn.close()
+            self.terminal.write("Artikel hinzugefügt!")
+
+        self.terminal.nextLine()
         self.show_items()
 
     def finish_order(self):
         total = sum(q * price for (_, q, price) in self.current_order)
 
-        conn = sqlite3.connect("database.db")
-        c = conn.cursor()
-        c.execute("INSERT INTO orders (customer_id, total, created_at) VALUES (?, ?, ?)",
-                  (self.customer_id, total, str(datetime.datetime.now())))
-        order_id = c.lastrowid
+        order_id = create_order(self.customer_id, total)
 
         for item_id, quantity, price in self.current_order:
-            c.execute("INSERT INTO order_items VALUES (?, ?, ?)",
-                      (order_id, item_id, quantity))
-
-        conn.commit()
-        conn.close()
+            add_order_item(order_id, item_id, quantity, price)
 
         self.terminal.write(f"\nBestellung abgeschlossen! Gesamtbetrag: {total:.2f}€")
         self.terminal.nextLine()
@@ -190,31 +190,26 @@ class SSHPinguinProtocol(recvline.HistoricRecvLine):
         parts = line.split()
 
         if len(parts) != 2:
-            self.terminal.write("FEHLER: Bitte ID und Menge angeben! Beispiel: 3 10")
+            self.terminal.write("FEHLER: Beispiel: 3 10")
             self.terminal.nextLine()
             return
 
         if not parts[0].isdigit() or not parts[1].isdigit():
-            self.terminal.write("FEHLER: Nur Zahlen erlaubt!")
+            self.terminal.write("FEHLER: Nur Zahlen!")
             self.terminal.nextLine()
             return
 
         item_id = int(parts[0])
         quantity = int(parts[1])
 
-        conn = sqlite3.connect("database.db")
-        c = conn.cursor()
-        c.execute("SELECT name FROM inventory WHERE id=?", (item_id,))
-        item = c.fetchone()
+        item = get_price_and_stock_by_item_id(item_id)
 
         if not item:
-            self.terminal.write("Artikel-ID existiert nicht!")
+            self.terminal.write("Artikel existiert nicht!")
         else:
-            c.execute("UPDATE inventory SET stock = stock + ? WHERE id=?", (quantity, item_id))
-            conn.commit()
-            self.terminal.write(f"{quantity}x {item[0]} erfolgreich eingelagert!")
+            increase_stock(item_id, quantity)
+            self.terminal.write(f"{quantity} Stück erfolgreich eingelagert!")
 
-        conn.close()
         self.terminal.nextLine()
         self.show_home()
 
@@ -223,11 +218,7 @@ class SSHPinguinProtocol(recvline.HistoricRecvLine):
     #############################
 
     def show_inventory(self):
-        conn = sqlite3.connect("database.db")
-        c = conn.cursor()
-        c.execute("SELECT id, name, stock, price FROM inventory")
-        items = c.fetchall()
-        conn.close()
+        items = get_full_inventory()
 
         self.terminal.write("\n--- INVENTAR ---")
         self.terminal.nextLine()
@@ -243,13 +234,9 @@ class SSHPinguinProtocol(recvline.HistoricRecvLine):
     #############################
 
     def show_revenue(self):
-        conn = sqlite3.connect("database.db")
-        c = conn.cursor()
-        c.execute("SELECT SUM(total) FROM orders")
-        total = c.fetchone()[0]
-        conn.close()
+        total = get_total_revenue()
 
-        self.terminal.write(f"\nGesamtumsatz: {total if total else 0}€")
+        self.terminal.write(f"\nGesamtumsatz: {total:.2f}€")
         self.terminal.nextLine()
         self.show_home()
 

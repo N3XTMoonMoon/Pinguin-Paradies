@@ -1,4 +1,4 @@
-import sqlite3
+
 from twisted.conch import avatar, recvline
 from twisted.conch.interfaces import IConchUser, ISession
 from twisted.conch.ssh import factory, keys, session
@@ -8,55 +8,9 @@ from twisted.internet import reactor
 from zope.interface import implementer
 import datetime
 
-#############################
-# DATABASE INITIALISIERUNG #
-#############################
+from db import init_db, get_all_available_stock, get_price_and_stock_by_item_id
 
-def init_db():
-    conn = sqlite3.connect("database.db")
-    c = conn.cursor()
-
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS inventory (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        stock INTEGER NOT NULL,
-        price REAL NOT NULL
-    )
-    """)
-
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS orders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        customer_id TEXT,
-        total REAL,
-        created_at TEXT
-    )
-    """)
-
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS order_items (
-        order_id INTEGER,
-        item_id INTEGER,
-        quantity INTEGER
-    )
-    """)
-
-    # Seed Daten (nur wenn leer)
-    c.execute("SELECT COUNT(*) FROM inventory")
-    if c.fetchone()[0] == 0:
-        items = [
-            ("Fischburger Deluxe", 20, 7.50),
-            ("Eisberg-Salat", 15, 5.20),
-            ("Krabben-Knusper Menü", 10, 9.90),
-            ("Antarktis Nuggets", 30, 6.40),
-            ("Polar Pommes", 40, 3.50),
-            ("Walross Shake", 25, 4.80)
-        ]
-        c.executemany("INSERT INTO inventory (name, stock, price) VALUES (?, ?, ?)", items)
-
-    conn.commit()
-    conn.close()
+# Datenbankerstellung
 
 init_db()
 
@@ -149,11 +103,7 @@ class SSHPinguinProtocol(recvline.HistoricRecvLine):
         self.state = "BESTELLUNG_CUSTOMER"
 
     def show_items(self):
-        conn = sqlite3.connect("database.db")
-        c = conn.cursor()
-        c.execute("SELECT id, name, price, stock FROM inventory WHERE stock > 0")
-        items = c.fetchall()
-        conn.close()
+        items = get_all_available_stock()
 
         self.terminal.write("\n--- Verfügbare Gerichte ---")
         self.terminal.nextLine()
@@ -189,10 +139,7 @@ class SSHPinguinProtocol(recvline.HistoricRecvLine):
 
         quantity = int(line)
 
-        conn = sqlite3.connect("database.db")
-        c = conn.cursor()
-        c.execute("SELECT price, stock FROM inventory WHERE id=?", (self.selected_item,))
-        item = c.fetchone()
+        item = get_price_and_stock_by_item_id(self.selected_item)
 
         if not item:
             self.terminal.write("Artikel existiert nicht!")
@@ -362,5 +309,5 @@ if __name__ == "__main__":
 
     sshFactory = getRSAKeys(sshFactory)
 
-    reactor.listenTCP(2222, sshFactory)
+    reactor.listenTCP(22, sshFactory)
     reactor.run()

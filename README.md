@@ -1,5 +1,6 @@
-# PenguEats
-Ein Restaurantverwaltungs tool, welches über eine Console genutzt wird
+# PenguEats 
+Ein Restaurantverwaltungs tool, welches über eine Console genutzt wird <br>
+Github Link: [Readme.md](https://github.com/N3XTMoonMoon/Pinguin-Paradies/blob/main/README.md)
 ---
 Auszug aus der Vorlesungs-PDF der 1. Vorlesung:
 
@@ -78,21 +79,7 @@ Start des Conatiners über WSL ohne bspw. Docker Desktop -> Verbindung auch nur 
 ## Start
     start des Servers über "python main.py" oder
     "docker build -t pinguin-paradis:latest . && docker run -it -p 22:22 pinguin-paradis:latest"
-    Docker-compose ist aktuell noch nicht implementiert
+    
     Anmelden mit cmd > ssh <USER>@<Serveradress>
-    ssh admin@localhost
-
-## Bestellung
-Start über Befehl "Bestellen"
-Eingabe und Abfrage von der CLI was bestellt werden soll (über zahleneingabe oder Text: Burger(1) -> 1 oder Burger)
-- Eingabe der Kundennummer (Optional)
-- Eingabe des Artikels über nummer oder name
-- Menüs sollen auch möglich sein
-- Wie viel und welche extras
-- Wiederholen, solange der Kunde noch was bestellen will
-- Bestellung in DB Speichern
-
-## Artikel in lager hinzufügen
-Start über Befehl "Einlagern"
-- Artikelnummer und Menge eingeben
-- Speichern in Datenbank
+    User sind service (pw: service) und admin (pw: admin)
+    Bsp: ssh admin@localhost
